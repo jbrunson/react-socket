@@ -1,3 +1,5 @@
+//SERVER SIDE CODE
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -27,7 +29,16 @@ app.use(express.static('./node_modules/bootstrap/dist'));
 app.use('/', routes);
 app.use('/users', users);
 
-app.listen(3000);
+var server = app.listen(3000);
+var io = require('socket.io').listen(server);
+
+io.sockets.on('connection', function(socket) {
+  console.log("Connected: %s", socket.id);
+});
+
+
+
+console.log("Polling server started on 3000")
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
