@@ -19634,32 +19634,47 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	//CLIENT SIDE
-
 	var React = __webpack_require__(1);
 	var io = __webpack_require__(159);
+	var Header = __webpack_require__(209);
 
 	var APP = React.createClass({
 	  displayName: 'APP',
 
+	  getInitialState() {
+	    return {
+	      status: 'disconnected'
+	    };
+	  },
+
 	  componentWillMount() {
 	    this.socket = io('http://localhost:3000');
 	    this.socket.on('connect', this.connect);
+	    this.socket.on('disconnect', this.disconnect);
 	  },
 
 	  connect() {
-	    alert("Connected: " + this.socket.id);
+	    this.setState({ status: 'connected' });
+	  },
+
+	  disconnect() {
+	    this.setState({ status: 'disconnected' });
 	  },
 
 	  render() {
 	    return React.createElement(
-	      'h1',
+	      'div',
 	      {
 	        __source: {
 	          fileName: '../../../../../components/APP.js',
-	          lineNumber: 19
+	          lineNumber: 31
 	        }
 	      },
-	      'Getting the initial setup for react'
+	      React.createElement(Header, { title: 'New Header', status: this.state.status, __source: {
+	          fileName: '../../../../../components/APP.js',
+	          lineNumber: 32
+	        }
+	      })
 	    );
 	  }
 	});
@@ -26855,6 +26870,70 @@
 	};
 
 
+
+/***/ },
+/* 209 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+
+	var Header = React.createClass({
+	  displayName: 'Header',
+
+	  propTypes: {
+	    title: React.PropTypes.string.isRequired
+	  },
+
+	  getDefaultProps() {
+	    return {
+	      status: 'disconnected'
+	    };
+	  },
+
+	  render() {
+	    return React.createElement(
+	      'header',
+	      { className: 'row', __source: {
+	          fileName: '../../../../../components/parts/Header.js',
+	          lineNumber: 17
+	        }
+	      },
+	      React.createElement(
+	        'div',
+	        { className: 'col-xs-10', __source: {
+	            fileName: '../../../../../components/parts/Header.js',
+	            lineNumber: 19
+	          }
+	        },
+	        React.createElement(
+	          'h1',
+	          {
+	            __source: {
+	              fileName: '../../../../../components/parts/Header.js',
+	              lineNumber: 20
+	            }
+	          },
+	          this.props.title
+	        )
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'col-xs-2', __source: {
+	            fileName: '../../../../../components/parts/Header.js',
+	            lineNumber: 22
+	          }
+	        },
+	        React.createElement('span', { id: 'connection-status', className: this.props.status, __source: {
+	            fileName: '../../../../../components/parts/Header.js',
+	            lineNumber: 23
+	          }
+	        })
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Header;
 
 /***/ }
 /******/ ]);
