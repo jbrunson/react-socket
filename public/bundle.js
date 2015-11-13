@@ -58,7 +58,7 @@
 	var APP = __webpack_require__(209);
 	var Audience = __webpack_require__(261);
 	var Speaker = __webpack_require__(264);
-	var Board = __webpack_require__(265);
+	var Board = __webpack_require__(266);
 	// var Whoops404 = require('./components/Whoops404');
 	//not working in v1
 
@@ -24422,6 +24422,8 @@
 /* 209 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 	//CLIENT SIDE
 	var React = __webpack_require__(1);
 	var Router = __webpack_require__(159);
@@ -24437,7 +24439,8 @@
 	      status: 'disconnected',
 	      title: '',
 	      member: {},
-	      audience: []
+	      audience: [],
+	      speaker: {}
 	    };
 	  },
 
@@ -24446,9 +24449,11 @@
 	    this.socket = io('http://localhost:3000');
 	    this.socket.on('connect', this.connect);
 	    this.socket.on('disconnect', this.disconnect);
-	    this.socket.on('welcome', this.welcome);
+	    this.socket.on('welcome', this.updateState);
 	    this.socket.on('joined', this.joined);
 	    this.socket.on('audience', this.updateAudience);
+	    this.socket.on('start', this.start);
+	    this.socket.on('end', this.updateState);
 	  },
 
 	  emit(eventName, payload) {
@@ -24456,23 +24461,43 @@
 	  },
 
 	  connect() {
+	    var member = sessionStorage.member ? JSON.parse(sessionStorage.member) : null;
+
+	    if (member && member.type === 'audience') {
+	      this.emit('join', member);
+	    } else if (member && member.type === 'speaker') {
+	      this.emit('start', { name: member.name, title: sessionStorage.title });
+	    }
+
 	    this.setState({ status: 'connected' });
 	  },
 
 	  disconnect() {
-	    this.setState({ status: 'disconnected' });
+	    this.setState({
+	      status: 'disconnected',
+	      title: 'disconnected',
+	      speaker: ''
+	    });
 	  },
 
-	  welcome(serverState) {
-	    this.setState({ title: serverState.title });
+	  updateState(serverState) {
+	    this.setState(serverState);
 	  },
 
 	  joined(member) {
+	    sessionStorage.member = JSON.stringify(member);
 	    this.setState({ member: member });
 	  },
 
 	  updateAudience(newAudience) {
 	    this.setState({ audience: newAudience });
+	  },
+
+	  start(presentation) {
+	    if (this.state.member.type === 'speaker') {
+	      sessionStorage.title = presentation.title;
+	    }
+	    this.setState(presentation);
 	  },
 
 	  //Need to pass down All states w/spread operator **error
@@ -24482,19 +24507,21 @@
 	      {
 	        __source: {
 	          fileName: '../../../../../components/APP.js',
-	          lineNumber: 56
+	          lineNumber: 80
 	        }
 	      },
-	      React.createElement(Header, { title: this.state.title, status: this.state.status, __source: {
+	      React.createElement(Header, _extends({}, this.state, {
+	        __source: {
 	          fileName: '../../../../../components/APP.js',
-	          lineNumber: 57
+	          lineNumber: 81
 	        }
-	      }),
+	      })),
 	      React.cloneElement(this.props.children, { title: this.state.title,
 	        status: this.state.status,
 	        emit: this.emit,
 	        member: this.state.member,
-	        audience: this.state.audience })
+	        audience: this.state.audience,
+	        speaker: this.state.speaker.name })
 	    );
 	  }
 	});
@@ -31734,18 +31761,28 @@
 	            }
 	          },
 	          this.props.title
+	        ),
+	        React.createElement(
+	          'p',
+	          {
+	            __source: {
+	              fileName: '../../../../../components/parts/Header.js',
+	              lineNumber: 21
+	            }
+	          },
+	          this.props.speaker.name
 	        )
 	      ),
 	      React.createElement(
 	        'div',
 	        { className: 'col-xs-2', __source: {
 	            fileName: '../../../../../components/parts/Header.js',
-	            lineNumber: 22
+	            lineNumber: 23
 	          }
 	        },
 	        React.createElement('span', { id: 'connection-status', className: this.props.status, __source: {
 	            fileName: '../../../../../components/parts/Header.js',
-	            lineNumber: 23
+	            lineNumber: 24
 	          }
 	        })
 	      )
@@ -31882,7 +31919,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
-
+	var Link = __webpack_require__(159).Link;
 	var Join = React.createClass({
 	  displayName: 'Join',
 
@@ -31929,6 +31966,15 @@
 	            }
 	          },
 	          'Join'
+	        ),
+	        React.createElement(
+	          Link,
+	          { to: '/speaker', __source: {
+	              fileName: '../../../../../components/parts/Join.js',
+	              lineNumber: 17
+	            }
+	          },
+	          'Join as speaker'
 	        )
 	      )
 	    );
@@ -31942,21 +31988,80 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
+	var Display = __webpack_require__(262);
+	var JoinSpeaker = __webpack_require__(265);
 
 	var Speaker = React.createClass({
 	  displayName: 'Speaker',
 
 	  render() {
 	    return React.createElement(
-	      'h1',
+	      'div',
 	      {
 	        __source: {
 	          fileName: '../../../../../components/Speaker.js',
-	          lineNumber: 5
+	          lineNumber: 8
 	        }
 	      },
-	      'Speaker : ',
-	      this.props.status
+	      React.createElement(
+	        Display,
+	        { 'if': this.props.status === 'connected', __source: {
+	            fileName: '../../../../../components/Speaker.js',
+	            lineNumber: 9
+	          }
+	        },
+	        React.createElement(
+	          Display,
+	          { 'if': this.props.member.name && this.props.member.type === 'speaker', __source: {
+	              fileName: '../../../../../components/Speaker.js',
+	              lineNumber: 11
+	            }
+	          },
+	          React.createElement(
+	            'p',
+	            {
+	              __source: {
+	                fileName: '../../../../../components/Speaker.js',
+	                lineNumber: 12
+	              }
+	            },
+	            'Questions'
+	          ),
+	          React.createElement(
+	            'p',
+	            {
+	              __source: {
+	                fileName: '../../../../../components/Speaker.js',
+	                lineNumber: 13
+	              }
+	            },
+	            'Attendance'
+	          )
+	        ),
+	        React.createElement(
+	          Display,
+	          { 'if': !this.props.member.name, __source: {
+	              fileName: '../../../../../components/Speaker.js',
+	              lineNumber: 16
+	            }
+	          },
+	          React.createElement(
+	            'h2',
+	            {
+	              __source: {
+	                fileName: '../../../../../components/Speaker.js',
+	                lineNumber: 17
+	              }
+	            },
+	            'Start the Presentation'
+	          ),
+	          React.createElement(JoinSpeaker, { emit: this.props.emit, __source: {
+	              fileName: '../../../../../components/Speaker.js',
+	              lineNumber: 18
+	            }
+	          })
+	        )
+	      )
 	    );
 	  }
 	});
@@ -31965,6 +32070,82 @@
 
 /***/ },
 /* 265 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+
+	var JoinSpeaker = React.createClass({
+	  displayName: 'JoinSpeaker',
+
+	  start() {
+	    var speakerName = React.findDOMNode(this.refs.name).value;
+	    var title = React.findDOMNode(this.refs.title).value;
+	    this.props.emit('start', { name: speakerName, title: title });
+	  },
+
+	  render() {
+	    return React.createElement(
+	      'form',
+	      { action: 'javascript:void(0)', onSubmit: this.start, __source: {
+	          fileName: '../../../../../components/parts/joinSpeaker.js',
+	          lineNumber: 13
+	        }
+	      },
+	      React.createElement(
+	        'div',
+	        { className: 'col-xs-6', __source: {
+	            fileName: '../../../../../components/parts/joinSpeaker.js',
+	            lineNumber: 14
+	          }
+	        },
+	        React.createElement(
+	          'label',
+	          {
+	            __source: {
+	              fileName: '../../../../../components/parts/joinSpeaker.js',
+	              lineNumber: 15
+	            }
+	          },
+	          'Full Name'
+	        ),
+	        React.createElement('input', { ref: 'name', className: 'form-control', placeholder: 'Enter your full name', required: true, __source: {
+	            fileName: '../../../../../components/parts/joinSpeaker.js',
+	            lineNumber: 16
+	          }
+	        }),
+	        React.createElement(
+	          'label',
+	          {
+	            __source: {
+	              fileName: '../../../../../components/parts/joinSpeaker.js',
+	              lineNumber: 17
+	            }
+	          },
+	          'Presentation Title'
+	        ),
+	        React.createElement('input', { ref: 'title', className: 'form-control', placeholder: 'Enter a title for Presentation', required: true, __source: {
+	            fileName: '../../../../../components/parts/joinSpeaker.js',
+	            lineNumber: 18
+	          }
+	        }),
+	        React.createElement(
+	          'button',
+	          { className: 'btn btn-primary', __source: {
+	              fileName: '../../../../../components/parts/joinSpeaker.js',
+	              lineNumber: 19
+	            }
+	          },
+	          'Join'
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = JoinSpeaker;
+
+/***/ },
+/* 266 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);

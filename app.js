@@ -11,6 +11,7 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var audience = [];
+var speaker = {};
 
 var app = express();
 
@@ -46,6 +47,11 @@ io.sockets.on('connection', function(socket) {
       audience.splice(audience.indexOf(member), 1);
       io.sockets.emit('audience', audience);
       console.log("Left: %s (%s audience members)", member.name, audience.length);
+    } else if (this.id === speaker.id) {
+      console.log("%s has left. '%s' is over", speaker.name, title);
+      speaker = {};
+      title = "no title";
+      io.sockets.emit('end', { title: title, speaker: ''});
     }
 
     connections.splice(connections.indexOf(socket), 1);
@@ -56,7 +62,8 @@ io.sockets.on('connection', function(socket) {
   socket.on('join', function(payload) {
     var newMember = {
       id: this.id,
-      name: payload.name
+      name: payload.name,
+      type: 'member'
     };
     this.emit('joined', newMember);
     audience.push(newMember);
@@ -64,8 +71,19 @@ io.sockets.on('connection', function(socket) {
     console.log("Audience Joined: %s", payload.name);
   });
 
+  socket.on('start', function(payload) {
+    speaker.name = payload.name;
+    speaker.id = this.id;
+    speaker.type = 'speaker';
+    this.emit('joined', speaker);
+    io.sockets.emit('start', { title: title, speaker: speaker.name });
+    console.log("Presentation Started: '%s' by %s", title, speaker.name);
+  });
+
   socket.emit('welcome', {
-    title: title
+    title: title,
+    audience: audience,
+    speaker: speaker.name
   });
   connections.push(socket);
   console.log("Connected: %s sockets connected", connections.length);
