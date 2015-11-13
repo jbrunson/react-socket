@@ -57,8 +57,8 @@
 
 	var APP = __webpack_require__(209);
 	var Audience = __webpack_require__(261);
-	var Speaker = __webpack_require__(263);
-	var Board = __webpack_require__(264);
+	var Speaker = __webpack_require__(264);
+	var Board = __webpack_require__(265);
 	// var Whoops404 = require('./components/Whoops404');
 	//not working in v1
 
@@ -24447,6 +24447,10 @@
 	    this.socket.on('welcome', this.welcome);
 	  },
 
+	  emit(eventName, payload) {
+	    this.socket.emit(eventName, payload);
+	  },
+
 	  connect() {
 	    this.setState({ status: 'connected' });
 	  },
@@ -24466,15 +24470,15 @@
 	      {
 	        __source: {
 	          fileName: '../../../../../components/APP.js',
-	          lineNumber: 40
+	          lineNumber: 44
 	        }
 	      },
 	      React.createElement(Header, { title: this.state.title, status: this.state.status, __source: {
 	          fileName: '../../../../../components/APP.js',
-	          lineNumber: 41
+	          lineNumber: 45
 	        }
 	      }),
-	      React.cloneElement(this.props.children, { title: this.state.title, status: this.state.status })
+	      React.cloneElement(this.props.children, { title: this.state.title, status: this.state.status, emit: this.emit })
 	    );
 	  }
 	});
@@ -31741,6 +31745,7 @@
 
 	var React = __webpack_require__(1);
 	var Display = __webpack_require__(262);
+	var Join = __webpack_require__(263);
 
 	var Audience = React.createClass({
 	  displayName: 'Audience',
@@ -31751,14 +31756,14 @@
 	      {
 	        __source: {
 	          fileName: '../../../../../components/Audience.js',
-	          lineNumber: 7
+	          lineNumber: 8
 	        }
 	      },
 	      React.createElement(
 	        Display,
 	        { 'if': this.props.status === 'connected', __source: {
 	            fileName: '../../../../../components/Audience.js',
-	            lineNumber: 8
+	            lineNumber: 9
 	          }
 	        },
 	        React.createElement(
@@ -31766,11 +31771,16 @@
 	          {
 	            __source: {
 	              fileName: '../../../../../components/Audience.js',
-	              lineNumber: 9
+	              lineNumber: 10
 	            }
 	          },
 	          'Join the session'
-	        )
+	        ),
+	        React.createElement(Join, { emit: this.props.emit, __source: {
+	            fileName: '../../../../../components/Audience.js',
+	            lineNumber: 11
+	          }
+	        })
 	      )
 	    );
 	  }
@@ -31809,6 +31819,66 @@
 
 	var React = __webpack_require__(1);
 
+	var Join = React.createClass({
+	  displayName: 'Join',
+
+	  join() {
+	    var memberName = React.findDOMNode(this.refs.name).value;
+	    this.props.emit('join', { name: memberName });
+	  },
+
+	  render() {
+	    return React.createElement(
+	      'form',
+	      { action: 'javascript:void(0)', onSubmit: this.join, __source: {
+	          fileName: '../../../../../components/parts/Join.js',
+	          lineNumber: 12
+	        }
+	      },
+	      React.createElement(
+	        'div',
+	        { className: 'col-xs-6', __source: {
+	            fileName: '../../../../../components/parts/Join.js',
+	            lineNumber: 13
+	          }
+	        },
+	        React.createElement(
+	          'label',
+	          {
+	            __source: {
+	              fileName: '../../../../../components/parts/Join.js',
+	              lineNumber: 14
+	            }
+	          },
+	          'Full Name'
+	        ),
+	        React.createElement('input', { ref: 'name', className: 'form-control', placeholder: 'Enter your full name', required: true, __source: {
+	            fileName: '../../../../../components/parts/Join.js',
+	            lineNumber: 15
+	          }
+	        }),
+	        React.createElement(
+	          'button',
+	          { className: 'btn btn-primary', __source: {
+	              fileName: '../../../../../components/parts/Join.js',
+	              lineNumber: 16
+	            }
+	          },
+	          'Join'
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Join;
+
+/***/ },
+/* 264 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+
 	var Speaker = React.createClass({
 	  displayName: 'Speaker',
 
@@ -31830,7 +31900,7 @@
 	module.exports = Speaker;
 
 /***/ },
-/* 264 */
+/* 265 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);

@@ -13,13 +13,17 @@ var APP = React.createClass({
       title: ''
     }
   },
-  
+
   componentWillMount() {
     //listeners
     this.socket = io('http://localhost:3000');
     this.socket.on('connect', this.connect);
     this.socket.on('disconnect', this.disconnect);
     this.socket.on('welcome', this.welcome);
+  },
+
+  emit(eventName, payload) {
+    this.socket.emit(eventName, payload);
   },
 
   connect() {
@@ -39,7 +43,7 @@ var APP = React.createClass({
     return (
       <div>
         <Header title={this.state.title} status={this.state.status} />
-        {React.cloneElement(this.props.children, {title: this.state.title, status: this.state.status})}
+        {React.cloneElement(this.props.children, { title: this.state.title, status: this.state.status, emit: this.emit })}
       </div>
     );
   }
