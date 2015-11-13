@@ -30,6 +30,7 @@ app.use('/', routes);
 app.use('/users', users);
 
 var connections = [];
+var title = 'Untitled Presentation';
 
 var server = app.listen(3000);
 var io = require('socket.io').listen(server);
@@ -42,6 +43,9 @@ io.sockets.on('connection', function(socket) {
     console.log("Disconnects: %s sockets remaining.", connections.length);
   });
 
+  socket.emit('welcome', {
+    title: title
+  });
   connections.push(socket);
   console.log("Connected: %s sockets connected", connections.length);
 });
