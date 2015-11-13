@@ -24435,7 +24435,9 @@
 	  getInitialState() {
 	    return {
 	      status: 'disconnected',
-	      title: ''
+	      title: '',
+	      member: {},
+	      audience: []
 	    };
 	  },
 
@@ -24445,6 +24447,8 @@
 	    this.socket.on('connect', this.connect);
 	    this.socket.on('disconnect', this.disconnect);
 	    this.socket.on('welcome', this.welcome);
+	    this.socket.on('joined', this.joined);
+	    this.socket.on('audience', this.updateAudience);
 	  },
 
 	  emit(eventName, payload) {
@@ -24463,6 +24467,14 @@
 	    this.setState({ title: serverState.title });
 	  },
 
+	  joined(member) {
+	    this.setState({ member: member });
+	  },
+
+	  updateAudience(newAudience) {
+	    this.setState({ audience: newAudience });
+	  },
+
 	  //Need to pass down All states w/spread operator **error
 	  render() {
 	    return React.createElement(
@@ -24470,15 +24482,19 @@
 	      {
 	        __source: {
 	          fileName: '../../../../../components/APP.js',
-	          lineNumber: 44
+	          lineNumber: 56
 	        }
 	      },
 	      React.createElement(Header, { title: this.state.title, status: this.state.status, __source: {
 	          fileName: '../../../../../components/APP.js',
-	          lineNumber: 45
+	          lineNumber: 57
 	        }
 	      }),
-	      React.cloneElement(this.props.children, { title: this.state.title, status: this.state.status, emit: this.emit })
+	      React.cloneElement(this.props.children, { title: this.state.title,
+	        status: this.state.status,
+	        emit: this.emit,
+	        member: this.state.member,
+	        audience: this.state.audience })
 	    );
 	  }
 	});
@@ -31767,20 +31783,68 @@
 	          }
 	        },
 	        React.createElement(
-	          'h1',
-	          {
-	            __source: {
+	          Display,
+	          { 'if': this.props.member.name, __source: {
 	              fileName: '../../../../../components/Audience.js',
-	              lineNumber: 10
+	              lineNumber: 11
 	            }
 	          },
-	          'Join the session'
+	          React.createElement(
+	            'h2',
+	            {
+	              __source: {
+	                fileName: '../../../../../components/Audience.js',
+	                lineNumber: 12
+	              }
+	            },
+	            'Welcome ',
+	            this.props.member.name
+	          ),
+	          React.createElement(
+	            'p',
+	            {
+	              __source: {
+	                fileName: '../../../../../components/Audience.js',
+	                lineNumber: 13
+	              }
+	            },
+	            this.props.audience.length,
+	            ' audience members connected'
+	          ),
+	          React.createElement(
+	            'p',
+	            {
+	              __source: {
+	                fileName: '../../../../../components/Audience.js',
+	                lineNumber: 14
+	              }
+	            },
+	            'Questions will appear here'
+	          )
 	        ),
-	        React.createElement(Join, { emit: this.props.emit, __source: {
-	            fileName: '../../../../../components/Audience.js',
-	            lineNumber: 11
-	          }
-	        })
+	        React.createElement(
+	          Display,
+	          { 'if': !this.props.member.name, __source: {
+	              fileName: '../../../../../components/Audience.js',
+	              lineNumber: 17
+	            }
+	          },
+	          React.createElement(
+	            'h1',
+	            {
+	              __source: {
+	                fileName: '../../../../../components/Audience.js',
+	                lineNumber: 18
+	              }
+	            },
+	            'Join the session'
+	          ),
+	          React.createElement(Join, { emit: this.props.emit, __source: {
+	              fileName: '../../../../../components/Audience.js',
+	              lineNumber: 19
+	            }
+	          })
+	        )
 	      )
 	    );
 	  }
