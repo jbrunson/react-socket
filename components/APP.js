@@ -13,7 +13,9 @@ var APP = React.createClass({
       title: '',
       member: {},
       audience: [],
-      speaker: {}
+      speaker: {},
+      questions: [],
+      currentQuestion: false
     }
   },
 
@@ -26,7 +28,8 @@ var APP = React.createClass({
     this.socket.on('joined', this.joined);
     this.socket.on('audience', this.updateAudience);
     this.socket.on('start', this.start);
-    this.socket.on('end', this.updateState);  
+    this.socket.on('end', this.updateState); 
+    this.socket.on('ask', this.ask); 
   },
 
   emit(eventName, payload) {
@@ -74,17 +77,23 @@ var APP = React.createClass({
     this.setState(presentation);
   },
 
+  ask(question) {
+    this.setState({ currentQuestion: question });
+  },
+
   //Need to pass down All states w/spread operator **error
   render() {
     return (
       <div>
         <Header {...this.state} />
-        {React.cloneElement(this.props.children, { title: this.state.title, 
+        {React.cloneElement(this.props.children, {  title: this.state.title, 
                                                     status: this.state.status, 
                                                     emit: this.emit, 
                                                     member: this.state.member,
                                                     audience: this.state.audience,
-                                                    speaker: this.state.speaker.name })}
+                                                    speaker: this.state.speaker.name,
+                                                    questions: this.state.questions,
+                                                    currentQuestion: this.state.currentQuestion })}
       </div>
     );
   }

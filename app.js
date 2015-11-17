@@ -11,6 +11,8 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var audience = [];
+var questions = require('./app-questions');
+var currentQuestion = false;
 var speaker = {};
 
 var app = express();
@@ -80,10 +82,18 @@ io.sockets.on('connection', function(socket) {
     console.log("Presentation Started: '%s' by %s", title, speaker.name);
   });
 
+  socket.on('ask', function(question) {
+    currentQuestion = question;
+    io.sockets.emit('ask', currentQuestion);
+    console.log("Question Asked: '%s'", question.q);
+  });
+
   socket.emit('welcome', {
     title: title,
     audience: audience,
-    speaker: speaker.name
+    speaker: speaker.name,
+    questions: questions,
+    currentQuestion: currentQuestion
   });
   connections.push(socket);
   console.log("Connected: %s sockets connected", connections.length);

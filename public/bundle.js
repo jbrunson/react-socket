@@ -58,7 +58,7 @@
 	var APP = __webpack_require__(209);
 	var Audience = __webpack_require__(261);
 	var Speaker = __webpack_require__(264);
-	var Board = __webpack_require__(266);
+	var Board = __webpack_require__(268);
 	// var Whoops404 = require('./components/Whoops404');
 	//not working in v1
 
@@ -24440,7 +24440,9 @@
 	      title: '',
 	      member: {},
 	      audience: [],
-	      speaker: {}
+	      speaker: {},
+	      questions: [],
+	      currentQuestion: false
 	    };
 	  },
 
@@ -24454,6 +24456,7 @@
 	    this.socket.on('audience', this.updateAudience);
 	    this.socket.on('start', this.start);
 	    this.socket.on('end', this.updateState);
+	    this.socket.on('ask', this.ask);
 	  },
 
 	  emit(eventName, payload) {
@@ -24500,6 +24503,10 @@
 	    this.setState(presentation);
 	  },
 
+	  ask(question) {
+	    this.setState({ currentQuestion: question });
+	  },
+
 	  //Need to pass down All states w/spread operator **error
 	  render() {
 	    return React.createElement(
@@ -24507,13 +24514,13 @@
 	      {
 	        __source: {
 	          fileName: '../../../../../components/APP.js',
-	          lineNumber: 80
+	          lineNumber: 87
 	        }
 	      },
 	      React.createElement(Header, _extends({}, this.state, {
 	        __source: {
 	          fileName: '../../../../../components/APP.js',
-	          lineNumber: 81
+	          lineNumber: 88
 	        }
 	      })),
 	      React.cloneElement(this.props.children, { title: this.state.title,
@@ -24521,7 +24528,9 @@
 	        emit: this.emit,
 	        member: this.state.member,
 	        audience: this.state.audience,
-	        speaker: this.state.speaker.name })
+	        speaker: this.state.speaker.name,
+	        questions: this.state.questions,
+	        currentQuestion: this.state.currentQuestion })
 	    );
 	  }
 	});
@@ -31827,43 +31836,69 @@
 	            }
 	          },
 	          React.createElement(
-	            'h2',
-	            {
-	              __source: {
-	                fileName: '../../../../../components/Audience.js',
-	                lineNumber: 12
-	              }
-	            },
-	            'Welcome ',
-	            this.props.member.name
-	          ),
-	          React.createElement(
-	            'p',
-	            {
-	              __source: {
+	            Display,
+	            { 'if': !this.props.currentQuestion, __source: {
 	                fileName: '../../../../../components/Audience.js',
 	                lineNumber: 13
 	              }
 	            },
-	            this.props.audience.length,
-	            ' audience members connected'
+	            React.createElement(
+	              'h2',
+	              {
+	                __source: {
+	                  fileName: '../../../../../components/Audience.js',
+	                  lineNumber: 14
+	                }
+	              },
+	              'Welcome ',
+	              this.props.member.name
+	            ),
+	            React.createElement(
+	              'p',
+	              {
+	                __source: {
+	                  fileName: '../../../../../components/Audience.js',
+	                  lineNumber: 15
+	                }
+	              },
+	              this.props.audience.length,
+	              ' audience members connected'
+	            ),
+	            React.createElement(
+	              'p',
+	              {
+	                __source: {
+	                  fileName: '../../../../../components/Audience.js',
+	                  lineNumber: 16
+	                }
+	              },
+	              'Questions will appear here'
+	            )
 	          ),
 	          React.createElement(
-	            'p',
-	            {
-	              __source: {
+	            Display,
+	            { 'if': this.props.currentQuestion, __source: {
 	                fileName: '../../../../../components/Audience.js',
-	                lineNumber: 14
+	                lineNumber: 19
 	              }
 	            },
-	            'Questions will appear here'
+	            React.createElement(
+	              'h2',
+	              {
+	                __source: {
+	                  fileName: '../../../../../components/Audience.js',
+	                  lineNumber: 20
+	                }
+	              },
+	              this.props.currentQuestion.q
+	            )
 	          )
 	        ),
 	        React.createElement(
 	          Display,
 	          { 'if': !this.props.member.name, __source: {
 	              fileName: '../../../../../components/Audience.js',
-	              lineNumber: 17
+	              lineNumber: 25
 	            }
 	          },
 	          React.createElement(
@@ -31871,14 +31906,14 @@
 	            {
 	              __source: {
 	                fileName: '../../../../../components/Audience.js',
-	                lineNumber: 18
+	                lineNumber: 26
 	              }
 	            },
 	            'Join the session'
 	          ),
 	          React.createElement(Join, { emit: this.props.emit, __source: {
 	              fileName: '../../../../../components/Audience.js',
-	              lineNumber: 19
+	              lineNumber: 27
 	            }
 	          })
 	        )
@@ -31990,6 +32025,8 @@
 	var React = __webpack_require__(1);
 	var Display = __webpack_require__(262);
 	var JoinSpeaker = __webpack_require__(265);
+	var Attendance = __webpack_require__(266);
+	var Questions = __webpack_require__(267);
 
 	var Speaker = React.createClass({
 	  displayName: 'Speaker',
@@ -32000,49 +32037,39 @@
 	      {
 	        __source: {
 	          fileName: '../../../../../components/Speaker.js',
-	          lineNumber: 8
+	          lineNumber: 10
 	        }
 	      },
 	      React.createElement(
 	        Display,
 	        { 'if': this.props.status === 'connected', __source: {
 	            fileName: '../../../../../components/Speaker.js',
-	            lineNumber: 9
+	            lineNumber: 11
 	          }
 	        },
 	        React.createElement(
 	          Display,
 	          { 'if': this.props.member.name && this.props.member.type === 'speaker', __source: {
 	              fileName: '../../../../../components/Speaker.js',
-	              lineNumber: 11
+	              lineNumber: 13
 	            }
 	          },
-	          React.createElement(
-	            'p',
-	            {
-	              __source: {
-	                fileName: '../../../../../components/Speaker.js',
-	                lineNumber: 12
-	              }
-	            },
-	            'Questions'
-	          ),
-	          React.createElement(
-	            'p',
-	            {
-	              __source: {
-	                fileName: '../../../../../components/Speaker.js',
-	                lineNumber: 13
-	              }
-	            },
-	            'Attendance'
-	          )
+	          React.createElement(Questions, { questions: this.props.questions, emit: this.props.emit, __source: {
+	              fileName: '../../../../../components/Speaker.js',
+	              lineNumber: 14
+	            }
+	          }),
+	          React.createElement(Attendance, { audience: this.props.audience, __source: {
+	              fileName: '../../../../../components/Speaker.js',
+	              lineNumber: 15
+	            }
+	          })
 	        ),
 	        React.createElement(
 	          Display,
 	          { 'if': !this.props.member.name, __source: {
 	              fileName: '../../../../../components/Speaker.js',
-	              lineNumber: 16
+	              lineNumber: 18
 	            }
 	          },
 	          React.createElement(
@@ -32050,14 +32077,14 @@
 	            {
 	              __source: {
 	                fileName: '../../../../../components/Speaker.js',
-	                lineNumber: 17
+	                lineNumber: 19
 	              }
 	            },
 	            'Start the Presentation'
 	          ),
 	          React.createElement(JoinSpeaker, { emit: this.props.emit, __source: {
 	              fileName: '../../../../../components/Speaker.js',
-	              lineNumber: 18
+	              lineNumber: 20
 	            }
 	          })
 	        )
@@ -32146,6 +32173,187 @@
 
 /***/ },
 /* 266 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+
+	var Attendance = React.createClass({
+	  displayName: "Attendance",
+
+	  addMemberRow(member, i) {
+	    return React.createElement(
+	      "tr",
+	      { key: i, __source: {
+	          fileName: "../../../../../components/parts/Attendance.js",
+	          lineNumber: 7
+	        }
+	      },
+	      React.createElement(
+	        "td",
+	        {
+	          __source: {
+	            fileName: "../../../../../components/parts/Attendance.js",
+	            lineNumber: 8
+	          }
+	        },
+	        member.name
+	      ),
+	      React.createElement(
+	        "td",
+	        {
+	          __source: {
+	            fileName: "../../../../../components/parts/Attendance.js",
+	            lineNumber: 9
+	          }
+	        },
+	        member.id
+	      )
+	    );
+	  },
+
+	  render() {
+	    return React.createElement(
+	      "div",
+	      {
+	        __source: {
+	          fileName: "../../../../../components/parts/Attendance.js",
+	          lineNumber: 16
+	        }
+	      },
+	      React.createElement(
+	        "h2",
+	        {
+	          __source: {
+	            fileName: "../../../../../components/parts/Attendance.js",
+	            lineNumber: 17
+	          }
+	        },
+	        "Attendance - ",
+	        this.props.audience.length,
+	        " members"
+	      ),
+	      React.createElement(
+	        "table",
+	        { className: "table table-striped", __source: {
+	            fileName: "../../../../../components/parts/Attendance.js",
+	            lineNumber: 18
+	          }
+	        },
+	        React.createElement(
+	          "thead",
+	          {
+	            __source: {
+	              fileName: "../../../../../components/parts/Attendance.js",
+	              lineNumber: 19
+	            }
+	          },
+	          React.createElement(
+	            "tr",
+	            {
+	              __source: {
+	                fileName: "../../../../../components/parts/Attendance.js",
+	                lineNumber: 20
+	              }
+	            },
+	            React.createElement(
+	              "th",
+	              {
+	                __source: {
+	                  fileName: "../../../../../components/parts/Attendance.js",
+	                  lineNumber: 21
+	                }
+	              },
+	              "Audience Members"
+	            ),
+	            React.createElement(
+	              "th",
+	              {
+	                __source: {
+	                  fileName: "../../../../../components/parts/Attendance.js",
+	                  lineNumber: 22
+	                }
+	              },
+	              "Socket ID"
+	            )
+	          )
+	        ),
+	        React.createElement(
+	          "tbody",
+	          {
+	            __source: {
+	              fileName: "../../../../../components/parts/Attendance.js",
+	              lineNumber: 25
+	            }
+	          },
+	          this.props.audience.map(this.addMemberRow)
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Attendance;
+
+/***/ },
+/* 267 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+
+	var Questions = React.createClass({
+	  displayName: 'Questions',
+
+	  ask(question) {
+	    this.props.emit('ask', question);
+	  },
+
+	  addQuestion(question, i) {
+	    return React.createElement(
+	      'div',
+	      { key: i, className: 'col-xs-12 col-sm-6 col-md-3 question', __source: {
+	          fileName: '../../../../../components/parts/Questions.js',
+	          lineNumber: 11
+	        }
+	      },
+	      React.createElement(
+	        'span',
+	        { onClick: this.ask.bind(null, question), __source: {
+	            fileName: '../../../../../components/parts/Questions.js',
+	            lineNumber: 12
+	          }
+	        },
+	        question.q
+	      )
+	    );
+	  },
+
+	  render() {
+	    return React.createElement(
+	      'div',
+	      { id: 'questions', className: 'row', __source: {
+	          fileName: '../../../../../components/parts/Questions.js',
+	          lineNumber: 19
+	        }
+	      },
+	      React.createElement(
+	        'h2',
+	        {
+	          __source: {
+	            fileName: '../../../../../components/parts/Questions.js',
+	            lineNumber: 20
+	          }
+	        },
+	        'Questions'
+	      ),
+	      this.props.questions.map(this.addQuestion)
+	    );
+	  }
+	});
+
+	module.exports = Questions;
+
+/***/ },
+/* 268 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);

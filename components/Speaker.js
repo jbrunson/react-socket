@@ -1,6 +1,8 @@
 var React = require('react');
 var Display = require('./parts/Display');
 var JoinSpeaker = require('./parts/joinSpeaker');
+var Attendance = require('./parts/Attendance');
+var Questions = require('./parts/Questions');
 
 var Speaker = React.createClass({
   render() {
@@ -9,8 +11,8 @@ var Speaker = React.createClass({
         <Display if={this.props.status === 'connected'}>
 
           <Display if={this.props.member.name && this.props.member.type === 'speaker'}>
-            <p>Questions</p>
-            <p>Attendance</p>
+            <Questions questions={this.props.questions} emit={this.props.emit} />
+            <Attendance audience={this.props.audience} />
           </Display>
 
           <Display if={!this.props.member.name}>
